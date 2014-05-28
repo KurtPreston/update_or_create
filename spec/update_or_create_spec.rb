@@ -21,7 +21,7 @@ describe UpdateOrCreate do
       belongs_to :test_class
     end
 
-    @test_object = TestClass.create(:name => "Valid")
+    @test_object = TestClass.create(name: 'Test 1', test_column: "A")
   end
 
   describe "Validate test classes" do
@@ -36,19 +36,43 @@ describe UpdateOrCreate do
 
   describe "ActiveRecord::Base#update_or_create" do
     it "updates existing fields when it finds them" do
-      a = TestClass.create(name: 'Test 1', test_column: "A")
-      TestClass.update_or_create(name: "Test 1", test_column: "B")
+      TestClass.update_or_create(name: "Test 1") do |a|
+        a.test_column = "B"
+      end
       TestClass.count.should == 1
-      a.reload.test_column.should == "B"
+      @test_object.reload.test_column.should == "B"
+    end
+
+    it "creates a new entry otherwise" do
+      b = TestClass.update_or_create(name: "Test 2") do |a|
+        a.test_column = "B"
+      end
+      TestClass.count.should == 2
+      @test_object.reload.test_column.should == "A"
+      b.name.should == "Test 2"
+      b.test_column.should == "B"
     end
   end
 
-  describe "ActiveRecord::Associations::AssociationProxy.factory_spawn" do
-    it "creates a new object without saving" do
-      @test_object.test_associations.factory_spawn.class.should == TestAssociation
-      @test_object.test_associations.factory_spawn(:name => 'Test Association').name.should == 'Test Association'
-      @test_object.test_associations.factory_spawn.id.should be_nil
-      @test_object.test_associations.factory_spawn.test_class.should == @test_object.reload
+  describe "ActiveRecord::Associations::AssociationProxy.update_or_create" do
+    it "updates an association if found" do
+      assoc1 = @test_object.test_associations.create(name: 'Association 1', test_column: 'C')
+      @test_object.test_associations.update_or_create(name: 'Association 1') do |a|
+        a.test_column = 'D'
+      end
+      assoc1.reload.test_column.should == 'D'
+      TestAssociation.count.should == 1
+    end
+
+    it "creates a new record if the association is not found" do
+      assoc1 = @test_object.test_associations.create(name: 'Association 1', test_column: 'C')
+      assoc2 = @test_object.test_associations.update_or_create(name: 'Association 2') do |a|
+        a.test_column = 'D'
+      end
+      assoc1.reload.test_column.should == 'C'
+      TestAssociation.count.should == 2
+      assoc2.name.should == 'Association 2'
+      assoc2.test_column.should == 'D'
     end
   end
 end
