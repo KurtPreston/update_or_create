@@ -5,6 +5,7 @@ Gem::Specification.new do |gem|
   gem.authors       = ["Kurt Preston"]
   gem.email         = ["github@kurtpreston.com"]
   gem.description   = "Adds update_or_create method to ActiveRecord objects"
+  gem.description   = "update_or_create is a simple method to update existing records, or create new ones"
   gem.homepage      = "https://github.com/KurtPreston/update_or_create"
 
   gem.files         = `git ls-files`.split($\)

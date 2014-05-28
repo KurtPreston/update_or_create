@@ -17,9 +17,16 @@ Or install it yourself as:
     $ gem install update_or_create
 
 ## Usage
-Methods:
 
-1. ```ClassName.update_or_create(find_params, update_params)```
+```ruby
+MyClass.update_or_create(name: 'Test Name') do |a|
+  a.test_column = "Some value"
+end
+```
 
 update_or_create also works with associations. For example:
-```object.has_many_association.update_or_create(find_params, update_params)```
+```ruby
+object.has_many_association.update_or_create(name: 'Test Name) do |a|
+  a.test_column = "Some value"
+end
+```
